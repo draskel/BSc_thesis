@@ -6,10 +6,12 @@
  * Author : Kaulics Daniel
  */ 
 #include "lcd.h"
+#include "lightsensing.h"
+#include "uart.h"
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#define F_CPU 1000000UL  // 1 MHz
+
 #define egy 0b00000001;
 #define ketto 0b00000010;
 #define harom 0b00000100;
@@ -33,24 +35,20 @@
 int main()
 {
 	char AT_command;
-	unsigned int tmp = 0, i = 0;
+	uint16_t tmp = 0, i = 0;
 	DDRC = 0xFF; // ledek debugra
 	LCD_init();
 	USART_Init();
+	ADC_init();
+
 
 	while (1)
 	{
-	_delay_ms(5000);
-	LCD_goto(0b00000000,0);
-	LCD_Puts("* * * * * * * * ");
-	LCD_goto(0b00000011,0);
-	LCD_Puts(" * * * * * * * *");
-	_delay_ms(5000);
-	LCD_command(0);
-	LCD_goto(0b00000000,0);
-	LCD_Puts(" * * * * * * * *");
-	LCD_goto(0b00000011,0);
-	LCD_Puts("* * * * * * * * ");
+		tmp = ReadADC(0);
+		LCD_goto(0,0);
+		LCD_Put_int(ADC);
+		_delay_ms(1000);
+		LCD_command(0x01);
 	}
 }
 	

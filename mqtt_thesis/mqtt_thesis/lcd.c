@@ -4,6 +4,7 @@
  * Created: 2017. 11. 15. 20:02:25
  *  Author: Kaulics Dániel
  */ 
+ #include <stdio.h>
  #include "lcd.h"
  #include <avr/io.h>
  #include <util/delay.h>
@@ -78,6 +79,13 @@
  void LCD_goto(unsigned char row, unsigned char col)
  {
 	 LCD_command((1<<7)|(row<<6)|col);
+ }
+
+ void LCD_Put_int (int val)
+ {
+	char arr[17] = {0};
+	snprintf(arr, 16, "%d",val);
+	LCD_Puts(arr);
  }
 
  void LCD_Puts (char*s)

@@ -2,7 +2,7 @@
 #define LCD_H_
 
 #ifndef F_CPU
-#define F_CPU 1000000UL
+#define F_CPU 8000000UL
 #endif
 
 #define CMD_RS	PORTF1 //PORTF pin 1
@@ -20,5 +20,5 @@ void LCD_data(unsigned char val);
 void LCD_goto(unsigned char row, unsigned char col);
 void LCD_creatctg();
 void LCD_Puts (char*s);
-
+void LCD_Put_int(int val);
 #endif /* LCD_H_ */
