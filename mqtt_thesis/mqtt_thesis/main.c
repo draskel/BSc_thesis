@@ -11,6 +11,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include "Si7021_driver.h"
 
 #define egy 0b00000001;
 #define ketto 0b00000010;
@@ -35,20 +36,33 @@
 int main()
 {
 	char AT_command;
-	uint16_t tmp = 0, i = 0;
+	uint16_t tmp = 0, i = 0; 
+	float temperature = 0, humidity = 0;
 	DDRC = 0xFF; // ledek debugra
 	LCD_init();
 	USART_Init();
 	ADC_init();
-
+	i2c_init();
+	
 
 	while (1)
 	{
 		tmp = ReadADC(0);
 		LCD_goto(0,0);
+		LCD_Puts("L:");
 		LCD_Put_int(ADC);
 		_delay_ms(1000);
+		
 		LCD_command(0x01);
+		
+		r_both_Si7021(&humidity, &temperature);
+		
+		LCD_goto(1,0);
+		LCD_Puts("H:");
+		LCD_Put_int(humidity);
+		LCD_Puts("% T:");
+		LCD_Put_int(temperature);
+		LCD_Puts("'C");
 	}
 }
 	

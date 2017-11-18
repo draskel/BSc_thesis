@@ -21,4 +21,5 @@ void LCD_goto(unsigned char row, unsigned char col);
 void LCD_creatctg();
 void LCD_Puts (char*s);
 void LCD_Put_int(int val);
+void LCD_Put_float(float val);
 #endif /* LCD_H_ */

@@ -81,6 +81,13 @@
 	 LCD_command((1<<7)|(row<<6)|col);
  }
 
+ void LCD_Put_float(float val)
+ {
+	char arr[17] = {0};
+	snprintf(arr, 16, "%f", val);
+	LCD_Puts(arr);
+ }
+
  void LCD_Put_int (int val)
  {
 	char arr[17] = {0};
