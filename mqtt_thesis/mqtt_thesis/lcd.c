@@ -95,6 +95,13 @@
 	LCD_Puts(arr);
  }
 
+ void LCD_Put_char (char val)
+ {
+	char arr[17] = {0};
+	snprintf(arr, 16, "%c", val);
+	LCD_Puts(arr);
+ }
+
  void LCD_Puts (char*s)
  {
 	 while (*s)
