@@ -15,47 +15,22 @@
 #include "Si7021_driver.h"
 #include "esp_12f.h"
 #include "paho_mqtt/MQTTPacket.h"
+#include "mqtt.h"
+#include <stdio.h>
 
 //115200
 #define USART_BAUDRATE 57600
 #define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
-
-volatile unsigned char response_buffer[200] = {0};
-volatile unsigned char respones_index = 0;
-volatile unsigned char response_flag = 0;
-
-ISR (USART1_RX_vect)
-{
-	if (response_flag == 1)
-	{
-		if (UDR1 == '\r')
-		{
-			response_flag = 0;
-			response_buffer[respones_index] = '\0';
-			respones_index = 0;
-		}
-		else
-		{
-			response_buffer[respones_index] = UDR1;
-			respones_index++;
-		}
-	}
-
-	if (UDR1 == '\n')
-	{
-		response_flag = 1;
-	}
-}
 
 int main()
 {
 	/*-----------------LOCAL VARS------------*/
 	float temperature = 0, humidity = 0;
 	char i = 0;
-	uint8_t tmp;
-	char *payload = "test";
+	uint16_t lighintensity;
+	char arr[17] = {0};
 	/*---------------------INITS------------------------*/
-	DDRC = 0xFF; // ledek debugra
+	DDRC = 0xFF;
 	LCD_init();
 	USART_Init0(BAUD_PRESCALE);
 	ADC_init();
@@ -63,82 +38,54 @@ int main()
 	sei();
 	
 	_delay_ms(5000);
-  	//USART_puts0("AT+RESTORE\r\n");
-  	//_delay_ms(1000);
 	ESP_12_init();
-
-
-	MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
-
-	char buf[200];
-	int buflen = sizeof(buf);
-
-	MQTTString topicString = MQTTString_initializer;
-
-	int payloadlen = strlen(payload);
-	int len = 0;
-
-	data.clientID.cstring = "ERO4XE_client";
-	data.keepAliveInterval = 20;
-	data.cleansession = 1;
-	//data.username.cstring = "testuser";
-	//data.password.cstring = "testpassword";
-	data.MQTTVersion = 4;
-
-	len = MQTTSerialize_connect((unsigned char *)buf, buflen, &data);
-
-
-	//tcp_send_packet(buf,len,0,1);
-  	_delay_ms(1000);
-  	tcp_send_packet(buf,len,0,1);
-	memset(buf,0,sizeof(buf));
-	len = 0;
-	_delay_ms(500);
-
-	topicString.cstring = "TEST_TOPIC";
-	len += MQTTSerialize_publish((unsigned char *)(buf + len), buflen - len, 0, 0, 0, 0, topicString, (unsigned char *)payload, payloadlen);
-	tcp_send_packet(buf,len,0,0);
-	memset(buf,0,sizeof(buf));
-	len = 0;
-	_delay_ms(500);
-
-	len += MQTTSerialize_disconnect((unsigned char *)(buf + len), buflen - len);
-	tcp_send_packet(buf,len,0,0);
-	memset(buf,0,sizeof(buf));
-	len = 0;
-	_delay_ms(500);
 
 	while (1)
 	{
-		
+		r_both_Si7021(&humidity, &temperature);
+		snprintf(arr, 16, "%d",(int)humidity);
+		mqtt_publish_sensordata(arr, "humidity");
+		memset(arr,0,sizeof(arr));
 		_delay_ms(1000);
+
+		snprintf(arr, 16, "%d",(int)temperature-3);
+		mqtt_publish_sensordata(arr, "temperature");
+		memset(arr,0,sizeof(arr));
+		_delay_ms(1000);
+
+		lighintensity = ReadADC(0);
+		snprintf(arr, 16, "%d",lighintensity);
+		mqtt_publish_sensordata(arr, "light");
+		memset(arr,0,sizeof(arr));
+		_delay_ms(1000);
+
 		//LCD_command(0x01);
 		PORTC ^= (1<<6);
 		//tcp_send_packet(buf,len);
-		/*
-		PORTC = 0x0;
-		tmp = ReadADC(0);
-		LCD_goto(0,0);
-		LCD_Puts("L:");
-		LCD_Put_int(ADC);
-		_delay_ms(1000);
-
-		LCD_Put_int( UDR1);
-		LCD_command(0x01);
 		
-		r_both_Si7021(&humidity, &temperature);
-		PORTC |= (1 << i);
-		i++;
-		LCD_goto(1,0);
-		LCD_Puts("H:");
-		LCD_Put_int(humidity);
-		LCD_Puts("% T:");
-		LCD_Put_int(temperature);
-		LCD_Puts("C");
-		if (i == 8)
-		{
-		i = 0;
-		}*/
+		//PORTC = 0x0;
+		//lighintensity = ReadADC(0);
+		//LCD_goto(0,0);
+		//LCD_Puts("L:");
+		//LCD_Put_int(ADC);
+		//_delay_ms(1000);
+//
+		//LCD_Put_int( UDR1);
+		//LCD_command(0x01);
+		//
+		//r_both_Si7021(&humidity, &temperature);
+		//PORTC |= (1 << i);
+		//i++;
+		//LCD_goto(1,0);
+		//LCD_Puts("H:");
+		//LCD_Put_int(humidity);
+		//LCD_Puts("% T:");
+		//LCD_Put_int(temperature);
+		//LCD_Puts("C");
+		//if (i == 8)
+		//{
+		//i = 0;
+		//}
 	}
 }
 
