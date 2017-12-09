@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "esp_12f.h"
 #include <util/delay.h>
+#include <avr/io.h>
 
 void tcp_send_packet(char* payload, uint8_t length, uint8_t dc_flag, uint8_t start_flag)
 {
@@ -15,15 +16,16 @@ void tcp_send_packet(char* payload, uint8_t length, uint8_t dc_flag, uint8_t sta
 	if (start_flag == 1)
 	{
 		USART_puts0("AT+CIPSTART=\"TCP\",\"192.168.1.99\",1883\r\n");
-		_delay_ms(300);
+		_delay_ms(1000);
+		//ESP_12_wait_for_ok(3);
 	}
 
 	snprintf(cmd,50,"AT+CIPSEND=%d\r\n",length);
 	USART_puts0(cmd);
-	//while ((USART_Receive0()) != '>'){};
 	_delay_ms(5);
+	//while ((USART_Receive0()) != '>'){};
 	USART_mqtt_puts0(payload,length);
-	//ESP_12_wait_for_ok(6);
+	//ESP_12_wait_for_ok(4);
 	_delay_ms(50);
 	if(dc_flag == 1)
 	{

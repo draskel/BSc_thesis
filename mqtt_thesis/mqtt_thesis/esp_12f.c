@@ -19,13 +19,13 @@ extern volatile unsigned char respones_index;
 void ESP_12_init()
 {
 	USART_puts0("ATE0\r\n");
-/*	ESP_12_wait_for_ok(0);*/
-	_delay_ms(5);
+	ESP_12_wait_for_ok(0);
+
 	USART_puts0("AT+CWMODE=3\r\n");
-/*	ESP_12_wait_for_ok(1);*/
-	_delay_ms(5);
+	ESP_12_wait_for_ok(1);
+
 	USART_puts0("AT+CWJAP=\"Csopog a csap!\",\"AKapucsengoKodja34KulcsNemTudjuk!!!!4444\"\r\n");
-	ESP_12_wait_for_ok(7); //ready to configure TCP
+	ESP_12_wait_for_ok(2); //ready to configure TCP
 }
 
 void ESP_12_wait_for_ok(uint8_t led)

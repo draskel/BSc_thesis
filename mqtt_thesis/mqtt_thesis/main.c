@@ -63,8 +63,8 @@ int main()
 	sei();
 	
 	_delay_ms(5000);
-//  	USART_puts0("AT+CIPBAUD=115200\r\n");
-//  	_delay_ms(1000);
+  	//USART_puts0("AT+RESTORE\r\n");
+  	//_delay_ms(1000);
 	ESP_12_init();
 
 
@@ -88,7 +88,9 @@ int main()
 	len = MQTTSerialize_connect((unsigned char *)buf, buflen, &data);
 
 
-	tcp_send_packet(buf,len,0,1);
+	//tcp_send_packet(buf,len,0,1);
+  	_delay_ms(1000);
+  	tcp_send_packet(buf,len,0,1);
 	memset(buf,0,sizeof(buf));
 	len = 0;
 	_delay_ms(500);
@@ -111,7 +113,7 @@ int main()
 		
 		_delay_ms(1000);
 		//LCD_command(0x01);
-		PORTC ^= (1<<1);
+		PORTC ^= (1<<6);
 		//tcp_send_packet(buf,len);
 		/*
 		PORTC = 0x0;
